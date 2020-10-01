@@ -29,5 +29,3 @@ vignettes/*.pdf
 
 # Rpubs
 rsconnect
-
-*.RData
