@@ -1,0 +1,276 @@
+---
+title: "xSTMF visual consistency checks"
+author: "Jonas Schöley"
+date: "30/09/2020"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  dev.args = list(type = "cairo")
+)
+```
+
+```{r init}
+library(tidyverse)
+library(pander)
+
+source('../code/00-init.R')
+
+cnst <- list(
+  strange_week_cutoff = 1.2
+)
+
+load('../out/2020-09-30-xstmf.RData')
+countries <- unique(xstmf$country_code)
+year_range <- range(xstmf$year)
+date_range <- range(xstmf$date)
+```
+
+# Temporal coverage by country
+
+```{r}
+xstmf %>%
+  group_by(country_code) %>%
+  summarise(
+    min_date = min(date),
+    max_date = max(date)
+  ) %>%
+  ggplot() +
+  geom_segment(
+    aes(x = min_date, xend = max_date,
+        y = country_code, yend = country_code)
+  ) +
+  scale_x_date(date_breaks = '2 years', date_labels = '%y') +
+  labs(y = 'Country', x = 'Year') +
+  glob$MyGGplotTheme(grid = 'xy')
+```
+
+# Country profiles
+
+```{r}
+create_section <- function(country) {
+  
+  # country title
+  pander::pandoc.p('')
+  pander::pandoc.header(country, level = 2)
+  
+  # data for country
+  country_data <-
+    xstmf[
+      xstmf$country_code == i,]
+  
+  range_country_year <- range(country_data$year)
+  range_country_date <- range(country_data$date)
+  
+  pander::pandoc.p('')
+  pander::pandoc.header('Weekly death counts by sex and age', level = 3)
+  
+  the_plot <-
+    country_data %>%
+    ggplot() +
+    geom_rect(
+      aes(
+        xmin = as.Date('2019-01-01'),
+        xmax = range_country_date[2],
+        ymin = -Inf, ymax = Inf
+      ),
+      color = NA, fill = 'grey90'
+    ) +
+    geom_vline(
+      xintercept = range_country_date,
+      color = 'grey50'
+    ) +
+    geom_point(
+      aes(x = date, y = observed_deaths),
+      size = 0.2
+    ) +
+    scale_x_date(
+      date_breaks = '2 years',
+      date_labels = '%y',
+      limits = date_range
+    ) +
+    scale_y_continuous(labels = scales::label_comma(accuracy = 1)) +
+    facet_grid(age_group~sex, scales = 'free_y') +
+    labs(y = 'Deaths per week', x = 'Year') +
+    glob$MyGGplotTheme(grid = 'xy', panel_border = TRUE)
+  print(the_plot)
+
+  pander::pandoc.p('')
+  
+  the_plot <-
+    country_data %>%
+    ggplot() +
+    geom_rect(
+      aes(
+        xmin = range_country_date[1],
+        xmax = range_country_date[2],
+        ymin = -Inf, ymax = Inf
+      ),
+      color = NA, fill = 'grey90'
+    ) +
+    geom_point(
+      aes(x = date, y = observed_deaths),
+      size = 0.2
+    ) +
+    scale_x_date(
+      date_breaks = '2 months',
+      date_labels = '%b%y'
+    ) +
+    scale_y_continuous(labels = scales::label_comma(accuracy = 1)) +
+    facet_grid(age_group~sex, scales = 'free_y') +
+    labs(y = 'Deaths per week', x = 'Year') +
+    glob$MyGGplotTheme(grid = 'xy', panel_border = TRUE) +
+    coord_cartesian(xlim = c(as.Date('2019-01-01'), date_range[2]))
+  print(the_plot)
+  
+  pander::pandoc.p('')
+  pander::pandoc.header('Weekly HMD reported exposures by sex and age', level = 3)
+  
+  the_plot <-
+    country_data %>%
+    ggplot() +
+    geom_vline(
+      xintercept = range_country_date,
+      color = 'grey50'
+    ) +
+    geom_point(
+      aes(x = date, y = exposure_pw_hmd),
+      size = 0.2
+    ) +
+    scale_x_date(
+      date_breaks = '2 years',
+      date_labels = '%y',
+      limits = date_range
+    ) +
+    scale_y_continuous(labels = scales::label_comma(accuracy = 1)) +
+    facet_grid(age_group~sex, scales = 'free_y') +
+    labs(y = 'HMD reported person-weeks of exposure per week', x = 'Year') +
+    glob$MyGGplotTheme(grid = 'xy', panel_border = TRUE)
+  print(the_plot)
+  
+  pander::pandoc.p('')
+  pander::pandoc.header('HMD Population 1st estimates by sex and age', level = 3)
+  
+  the_plot <-
+    country_data %>%
+    ggplot() +
+    geom_vline(
+      xintercept = range_country_date,
+      color = 'grey50'
+    ) +
+    geom_point(
+      aes(x = date, y = pop_jan1st),
+      size = 0.2
+    ) +
+    scale_x_date(
+      date_breaks = '2 years',
+      date_labels = '%y',
+      limits = date_range
+    ) +
+    scale_y_continuous(labels = scales::label_comma(accuracy = 1)) +
+    facet_grid(age_group~sex, scales = 'free_y') +
+    labs(y = 'HMD reported population January 1st', x = 'Year') +
+    glob$MyGGplotTheme(grid = 'xy', panel_border = TRUE)
+  print(the_plot)
+
+    pander::pandoc.p('')
+  pander::pandoc.header('Weekly person-weeks of exposure derived from interpolation of population numbers', level = 3)
+  
+  the_plot <-
+    country_data %>%
+    ggplot() +
+    geom_vline(
+      xintercept = range_country_date,
+      color = 'grey50'
+    ) +
+    geom_line(
+      aes(x = date, y = exposure_pw_interp)
+    ) +
+    scale_x_date(
+      date_breaks = '2 years',
+      date_labels = '%y',
+      limits = date_range
+    ) +
+    scale_y_continuous(labels = scales::label_comma(accuracy = 1)) +
+    facet_grid(age_group~sex, scales = 'free_y') +
+    labs(y = 'Weekly person-weeks of exposure', x = 'Year') +
+    glob$MyGGplotTheme(grid = 'xy', panel_border = TRUE)
+  print(the_plot)
+
+  pander::pandoc.p('')
+  pander::pandoc.header('Weeks with unusual death counts compared to prior week', level = 3)
+
+  the_plot <-
+    country_data %>%
+    group_by(year, date, iso_week) %>%
+    summarise(
+      observed_deaths = sum(observed_deaths)
+    ) %>%
+    ungroup() %>%
+    arrange(date) %>%
+    mutate(
+      ratio_deaths = observed_deaths/lag(observed_deaths),
+      strange =
+        case_when(
+          ratio_deaths >= cnst$strange_week_cutoff ~ 'higher',
+          ratio_deaths <= 1/cnst$strange_week_cutoff ~ 'lower',
+          TRUE ~ 'normal'
+        )
+    ) %>%
+    filter(strange != 'normal') %>%
+    ggplot(aes(x = iso_week, y = year)) +
+    scale_y_continuous(
+      breaks = 1900:2030,
+    ) +
+    scale_x_continuous(
+      breaks = 1:52,
+      labels = function (x) ifelse(x%%5==0 | x == 1, x, ''),
+      limits = c(1, 52)
+    ) +
+    geom_point(
+      aes(fill = strange, color = strange),
+      size = 5, shape = 21
+    ) +
+    geom_point(
+      aes(shape = strange, color = strange),
+      size = 5, position = position_nudge(x = 0.02, y = 0.02)
+    ) +
+    guides(color = 'none') +
+    scale_shape_manual(
+      values = c(higher = '+', lower = '-')
+    ) +
+    scale_fill_manual(
+      values = c(
+        higher = glob$colors$discrete_light[2],
+        lower = glob$colors$discrete_light[1]
+      )
+    ) +
+    scale_color_manual(
+      values = c(
+        higher = glob$colors$discrete[2],
+        lower = glob$colors$discrete[1]
+      )
+    ) +
+    labs(x = 'Week', y = 'Year') +
+    glob$MyGGplotTheme(show_legend = FALSE, grid = 'xy')
+  print(the_plot)
+  
+}
+
+pander::pandoc.p('')
+```
+
+```{r, results='asis'}
+for (i in countries) {
+   create_section(i)
+}
+```
