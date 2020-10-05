@@ -1,6 +1,6 @@
 # Prepare Sweden & Denmark deaths data
 #
-# 2020-10-01
+# 2020-10-05
 #
 # Jonas Schöley
 
@@ -35,7 +35,7 @@ cnst$epi_week_end_of_test <-
 load('data/marie_pierre/2020-09-30-dk_mp_epi_year_death_forecast.RData')
 
 # extended HMD STMF data
-load('out/2020-09-30-xstmf.RData')
+load('out/2020-10-05-xstmf.RData')
 
 # Filter down to Denmark and Sweden -------------------------------
 

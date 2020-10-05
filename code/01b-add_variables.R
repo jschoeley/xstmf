@@ -1,6 +1,6 @@
 # Add date and exposure variables
 #
-# 2020-09-30
+# 2020-10-05
 #
 # Jonas Schöley
 
@@ -45,8 +45,10 @@ dat$expanded_hmd_stmf_data <-
       as.integer(substr(epi_year,1,4)),
     # weeks into epi-year (starting at 0)
     epi_week =
-      difftime(date, start_of_epi_year, units = 'weeks') %>%
-      floor() %>% as.integer(),
+      # difftime(date, start_of_epi_year, units = 'weeks') %>%
+      # floor() %>% as.integer(),
+      (iso_week-glob$week_epi_year_starts) %>%
+      {ifelse(. < 0, 51 + . + 1, .)},
 
     ## indicators for special time of year
         
