@@ -15,7 +15,7 @@ fig <- list()
 
 # Load data -------------------------------------------------------
 
-load('out/2020-09-30-hmd_yearly_pop_weekly_deaths.RData')
+load('out/2020-11-10-hmd_yearly_pop_weekly_deaths.RData')
 
 # Add time related variables --------------------------------------
 
@@ -90,6 +90,7 @@ dat$expanded_hmd_stmf_data <-
   select(country_code, sex, age_group, weeks_since_origin, year, pop_jan1st) %>%
   group_by(country_code, sex, age_group) %>%
   group_modify(~{
+    cat(unlist(.y), sep = '\n')
     max_weeks_since_origin <- max(.x$weeks_since_origin)
     group_by(.x, year) %>%
       slice(1) %>%

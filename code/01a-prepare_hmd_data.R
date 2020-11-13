@@ -176,7 +176,8 @@ dat$pop_deaths_merged <-
   ungroup() %>%
   arrange(country_code, sex, age_group, year, iso_week) %>%
   select(
-    country_code, country_name, sex, age_group, year, iso_week, observed_deaths, pop_jan1st, everything()
+    country_code, country_name, sex, age_group, year, iso_week,
+    observed_deaths, pop_jan1st, everything()
   ) %>%
   filter(sex != 'Total') %>%
   mutate(sex = fct_drop(sex))

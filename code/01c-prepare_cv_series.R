@@ -20,7 +20,7 @@ cnst <- list(
   # first week of test period (inclusive)
   iso_week_start_of_test = 10,
   # last week of test period (inclusive)
-  iso_week_end_of_test = 39
+  iso_week_end_of_test = 26
 )
 
 cnst$epi_week_start_of_test <-
@@ -38,8 +38,10 @@ load('out/2020-10-05-xstmf.RData')
 
 # define cross-validation series
 dat$cv <-
-  # set up K-fold cross-validation
+  # set up 5-fold cross-validation
   map2(2007+0:4, 2015+0:4, EpiYearSequence)
+# add the complete data series
+dat$cv[[6]] <- EpiYearSequence(2007, 2020)
 
 dat$country_selection <-
   xstmf %>%
@@ -65,7 +67,7 @@ dat$xstmf_cv <-
     sample == 'training' |
       (sample == 'test' & iso_week <= cnst$iso_week_end_of_test)
   ) %>%
-  mutate(cv_id = as.integer(cv_id)) %>%
+  mutate(cv_id = as.integer(cv_id), cv_id = ifelse(cv_id == 6, 0, cv_id)) %>%
   arrange(cv_id, country_code, sex, age_group, date) %>%
   # add weeks since start of series
   group_by(cv_id) %>%
@@ -93,9 +95,10 @@ fig$training_test_bars <-
     size = 3
   ) +
   facet_wrap(~country_name) +
-  scale_x_date(date_breaks = '1 year', date_labels = '%y') +
-  scale_y_continuous(breaks = 1:20) +
+  scale_x_date(date_breaks = '1 year', date_labels = '%y', expand = c(0, 0)) +
+  scale_y_continuous(breaks = 0:5, labels = c('Total', 1:5)) +
   labs(x = NULL, y = NULL) +
   guides(color = 'none') +
   scale_color_manual(values = glob$colors$sample) +
-  glob$MyGGplotTheme()
+  glob$MyGGplotTheme(grid = 'xy') +
+  labs(title = 'Training-test split')

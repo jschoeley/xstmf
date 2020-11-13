@@ -29,7 +29,7 @@ cnst <- list(
   strange_week_cutoff = 1.2
 )
 
-load('../out/2020-10-05-xstmf.RData')
+load('../out/2020-11-10-xstmf.RData')
 countries <- unique(xstmf$country_code)
 year_range <- range(xstmf$year)
 date_range <- range(xstmf$date)

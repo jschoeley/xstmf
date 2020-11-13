@@ -1,6 +1,6 @@
 # Global objects for eXtended Short Term Mortality Fluctuations
 #
-# 2020-09-30
+# 2020-11-10
 #
 # Jonas Schöley
 
@@ -9,7 +9,6 @@
 library(ggplot2)
 
 glob <- list()
-
 glob <- within(glob, {
 
   countries <- dplyr::tribble(
@@ -17,6 +16,8 @@ glob <- within(glob, {
     'AUT'           , 'Austria'                  , 'northern',
     'BEL'           , 'Belgium'                  , 'northern',
     'BGR'           , 'Bulgaria'                 , 'northern',
+    'CHL'           , 'Chile'                    , 'southern',
+    'CAN'           , 'Canada'                   , 'northern',
     'HRV'           , 'Croatia'                  , 'northern',
     'CZE'           , 'Czech Republic'           , 'northern',
     'DNK'           , 'Denmark'                  , 'northern',
@@ -38,6 +39,7 @@ glob <- within(glob, {
     'NOR'           , 'Norway'                   , 'northern',
     'POL'           , 'Poland'                   , 'northern',
     'PRT'           , 'Portugal'                 , 'northern',
+    'KOR'           , 'Republic of Korea'        , 'northern',
     'RUS'           , 'Russia'                   , 'northern',
     'GBR_SCO'       , 'Scotland'                 , 'northern',
     'SVN'           , 'Slovenia'                 , 'northern',
