@@ -1,6 +1,6 @@
 # Download and merge HMD weekly deaths and yearly population counts
 #
-# 2020-09-30
+# 2020-12-14
 #
 # Jonas Schöley
 
@@ -55,6 +55,7 @@ cnst$countries_in_stmf <- unique(dat$stmf$CountryCode)
 
 # HMD population january 1st estimates
 # https://www.mortality.org/hmd/zip/by_statistic/population.zip
+# rename AUS to AUS2
 file_names <- list.files('data/hmd_population_jan1st/Population/')
 dat$hmd_pop <-
   map(file_names, ~{
@@ -138,7 +139,8 @@ dat$deaths_harmonized <-
   rename(observed_deaths = D, mortality_hmd = R) %>%
   mutate(
     sex =
-      factor(sex, levels = names(cnst$codebook$sex), labels = cnst$codebook$sex),
+      factor(sex, levels = names(cnst$codebook$sex),
+             labels = cnst$codebook$sex),
     age_group = 
       factor(
         age_group,

@@ -1,0 +1,39 @@
+﻿country_code,country_name,hemisphere
+AUS2,Australia,s
+AUT,Austria,n
+BEL,Belgium,n
+BGR,Bulgaria,n
+CAN,Canada,n
+CHE,Switzerland,n
+CHL,Chile,s
+CZE,Czech Republic,n
+DEUTNP,Germany,n
+DNK,Denmark,n
+ESP,Spain,n
+EST,Estonia,n
+FIN,Finland,n
+FRATNP,France,n
+GBRTENW,England and Wales,n
+GBR_NIR,Northern Ireland,n
+GBR_SCO,Scotland,n
+GRC,Greece,n
+HRV,Croatia,n
+HUN,Hungary,n
+ISL,Iceland,n
+ISR,Israel,n
+ITA,Italy,n
+KOR,S. Korea,n
+LTU,Lithuania,n
+LUX,Luxembourg,n
+LVA,Latvia,n
+NLD,Netherlands,n
+NOR,Norway,n
+NZL_NP,New Zealand,s
+POL,Poland,n
+PRT,Portugal,n
+RUS,Russia,n
+SVK,Slovakia,n
+SVN,Slovenia,n
+SWE,Sweden,n
+TWN,Taiwan ,n
+USA,USA,n

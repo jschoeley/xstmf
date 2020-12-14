@@ -1,7 +1,7 @@
 # Prepare 5-fold cross validation time-series splits of weekly
 # deaths counts by age and sex
 #
-# 2020-10-05
+# 2020-12-14
 #
 # Jonas Schöley
 
@@ -32,7 +32,7 @@ cnst$epi_week_end_of_test <-
 
 # Load xstmf ------------------------------------------------------
 
-load('out/2020-10-05-xstmf.RData')
+load('out/2020-12-14-xstmf.RData')
 
 # Prepare cross-validation data sets ------------------------------
 

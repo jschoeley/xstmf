@@ -1,7 +1,7 @@
 ---
 title: "xSTMF visual consistency checks"
 author: "Jonas Schöley"
-date: "2020-10-05"
+date: "2020-12-14"
 output:
   html_document:
     toc: true
@@ -29,7 +29,7 @@ cnst <- list(
   strange_week_cutoff = 1.2
 )
 
-load('../out/2020-11-10-xstmf.RData')
+load('../out/2020-12-14-xstmf.RData')
 countries <- unique(xstmf$country_code)
 year_range <- range(xstmf$year)
 date_range <- range(xstmf$date)

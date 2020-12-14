@@ -11,44 +11,7 @@ library(ggplot2)
 glob <- list()
 glob <- within(glob, {
 
-  countries <- dplyr::tribble(
-    ~country_code   , ~country_name              , ~hemisphere,
-    'AUT'           , 'Austria'                  , 'northern',
-    'BEL'           , 'Belgium'                  , 'northern',
-    'BGR'           , 'Bulgaria'                 , 'northern',
-    'CHL'           , 'Chile'                    , 'southern',
-    'CAN'           , 'Canada'                   , 'northern',
-    'HRV'           , 'Croatia'                  , 'northern',
-    'CZE'           , 'Czech Republic'           , 'northern',
-    'DNK'           , 'Denmark'                  , 'northern',
-    'GBRTENW'       , 'England And Wales'        , 'northern',
-    'EST'           , 'Estonia'                  , 'northern',
-    'FIN'           , 'Finland'                  , 'northern',
-    'FRATNP'        , 'France'                   , 'northern',
-    'DEUTNP'        , 'Germany'                  , 'northern',
-    'GRC'           , 'Greece'                   , 'northern',
-    'HUN'           , 'Hungary'                  , 'northern',
-    'ISL'           , 'Iceland'                  , 'northern',
-    'ISR'           , 'Israel'                   , 'northern',
-    'ITA'           , 'Italy'                    , 'northern',
-    'LVA'           , 'Latvia'                   , 'northern',
-    'LTU'           , 'Lithuania'                , 'northern',
-    'LUX'           , 'Luxembourg'               , 'northern',
-    'NLD'           , 'Netherlands'              , 'northern',
-    'GBR_NIR'       , 'Northern Ireland'         , 'northern',
-    'NOR'           , 'Norway'                   , 'northern',
-    'POL'           , 'Poland'                   , 'northern',
-    'PRT'           , 'Portugal'                 , 'northern',
-    'KOR'           , 'Republic of Korea'        , 'northern',
-    'RUS'           , 'Russia'                   , 'northern',
-    'GBR_SCO'       , 'Scotland'                 , 'northern',
-    'SVN'           , 'Slovenia'                 , 'northern',
-    'SVK'           , 'Slovakia'                 , 'northern',
-    'ESP'           , 'Spain'                    , 'northern',
-    'CHE'           , 'Switzerland'              , 'northern',
-    'SWE'           , 'Sweden'                   , 'northern',
-    'USA'           , 'United States of America' , 'northern'
-  )
+  countries <- readr::read_csv('stmf_country_metadata.csv')
   
   # iso-week which starts epi-year
   week_epi_year_starts <- 27
@@ -56,21 +19,20 @@ glob <- within(glob, {
   # definition of seasons in iso-weeks
   seasons <-
     list(
-      northern = list(
+      n = list(
         `Winter` = c(49:53, 1:9),
         `Spring` = 10:22,
         `Summer` = 23:35,
         `Fall` = 36:48
       ),
-      southern =
-        list(
-          `Winter` = 23:35,
-          `Spring` = 36:48,
-          `Summer` = c(49:53, 1:9),
-          `Fall` = 10:22
-        )
+      s = list(
+        `Winter` = 23:35,
+        `Spring` = 36:48,
+        `Summer` = c(49:53, 1:9),
+        `Fall` = 10:22
+      )
     )
-
+  
   # color coding
   colors <- list(
     sample =
@@ -201,7 +163,7 @@ glob <- within(glob, {
 #' @param offset Integer offset added to `week` before date calculation.
 #'
 #' @return A date object.
-#' 
+#'
 #' @source https://en.wikipedia.org/wiki/ISO_8601
 #'
 #' @author Jonas Schöley
@@ -254,17 +216,17 @@ WeeksSinceOrigin <-
       integer = as.integer(fractional_weeks_since_origin)
     )
   }
-
-#' Return a Sequence of Epi-Year Strings
 #' 
+#' Return a Sequence of Epi-Year Strings
+#'
 #' @param from First year of Epi-Year sequence.
 #' @param to Last year of Epi-Year sequence.
 #' @param what Type of return value. One of 'slash', 'beginning', 'end'.
-#' 
+#'
 #' @return Sequence of Epi-Years.
-#' 
+#'
 #' @author Jonas Schöley
-#' 
+#'
 #' @examples
 #' EpiYearSequence(2000, 2005)
 #' # beginning of epi-year
@@ -280,98 +242,69 @@ EpiYearSequence <- function(from, to, what = 'slash') {
     end = years[-1]
   )
 }
-
-# This model and estimates the average mortality rate over
-# some years within each week and stratum. The associated
-# predict() method multiplies this average mortality with
-# given exposures to derive death counts.
-AverageMortalityModel <-
-  function(df, week, deaths, exposures, ...) {
-    require(dplyr)
-    .strata <- enquos(...)
-    .week <- enquo(week)
-    .deaths <- enquo(deaths)
-    .exposures <- enquo(exposures)
-    
-    avg_mx <-
-      df %>%
-      group_by(!!!.strata, !!.week) %>%
-      summarise(
-        avg_mortality = mean(!!.deaths / !!.exposures),
-        .groups = "drop"
-      )
-    
-    structure(list(avg = avg_mx), class = "avgmx")
-  }
-predict.avgmx <- function(object, newdata, ...) {
-  require(dplyr)
-  
-  suppressMessages(left_join(newdata, object$avg)) %>%
-    pull(avg_mortality)
-}
-
-#' Export ggplot
 #' 
-#' @author Jonas Schöley
-ExportFigure <-
-  function(figure,
-           path,
-           filename,
-           width = 170,
-           height = 100,
-           scale = 1,
-           device = 'png',
-           dpi = 300,
-           add_date = FALSE) {
-    require(ggplot2)
-    
-    if (missing(filename)) {
-      filename <- tolower(gsub('\\.', '_', make.names(deparse(substitute(figure)))))
-    }
-    if (isTRUE(add_date)) {
-      filename <- paste0(Sys.Date(), '-', filename)
-    }
-    
-    arguments <-
-      list(
-        filename = paste0(filename, '.', device),
-        plot = figure,
-        path = path,
-        width = width,
-        height = height,
-        units = "mm",
-        scale = scale,
-        dpi = dpi,
-        device = device
-      )
-    if (device == 'pdf') {
-      arguments$useDingbats <- FALSE 
-    }
-    
-    do.call(ggsave, arguments)
-  }
-
-#' Export ggplots Stored in List
+#' #' Export ggplot
+#' #' 
+#' #' @author Jonas Schöley
+#' ExportFigure <-
+#'   function(figure,
+#'            path,
+#'            filename,
+#'            width = 170,
+#'            height = 100,
+#'            scale = 1,
+#'            device = 'png',
+#'            dpi = 300,
+#'            add_date = FALSE) {
+#'     require(ggplot2)
+#'     
+#'     if (missing(filename)) {
+#'       filename <- tolower(gsub('\\.', '_', make.names(deparse(substitute(figure)))))
+#'     }
+#'     if (isTRUE(add_date)) {
+#'       filename <- paste0(Sys.Date(), '-', filename)
+#'     }
+#'     
+#'     arguments <-
+#'       list(
+#'         filename = paste0(filename, '.', device),
+#'         plot = figure,
+#'         path = path,
+#'         width = width,
+#'         height = height,
+#'         units = "mm",
+#'         scale = scale,
+#'         dpi = dpi,
+#'         device = device
+#'       )
+#'     if (device == 'pdf') {
+#'       arguments$useDingbats <- FALSE 
+#'     }
+#'     
+#'     do.call(ggsave, arguments)
+#'   }
 #' 
-#' @author Jonas Schöley
-ExportFiguresFromList <- function(lst, path, ...) {
-  figure_names <- tolower(gsub('\\.+', '_', make.names(names(lst))))
-  Fun <- function (figure, filename, ...) {
-    ExportFigure(figure = figure, filename = filename, ...)
-  }
-  purrr::pwalk(
-    list(lst, figure_names),
-    Fun, path = path, ...
-  )
-}
-
+#' #' Export ggplots Stored in List
+#' #' 
+#' #' @author Jonas Schöley
+#' ExportFiguresFromList <- function(lst, path, ...) {
+#'   figure_names <- tolower(gsub('\\.+', '_', make.names(names(lst))))
+#'   Fun <- function (figure, filename, ...) {
+#'     ExportFigure(figure = figure, filename = filename, ...)
+#'   }
+#'   purrr::pwalk(
+#'     list(lst, figure_names),
+#'     Fun, path = path, ...
+#'   )
+#' }
+#' 
 #' Convert population estimates to population exposures
 #'
 #' Converts population estimates measured at discrete points
 #' in time into population exposures by interpolating between
 #' the data points using a cubic spline and integrating over
 #' arbitrary time intervals.
-#' 
+#'
 #' @param df A data frame.
 #' @param x Name of time variable.
 #' @param P Name of population variable.
@@ -380,7 +313,7 @@ ExportFiguresFromList <- function(lst, path, ...) {
 #' @param strata `vars()` specification of variables in df to stratify over.
 #'
 #' @return A data frame stratified by `strata` with population counts
-#' `Px` at time `x1` and exposures `Ex` over time interval `[x1,x2)`. 
+#' `Px` at time `x1` and exposures `Ex` over time interval `[x1,x2)`.
 #'
 #' @author Jonas Schöley, José Manuel Aburto
 #'
@@ -398,13 +331,13 @@ ExportFiguresFromList <- function(lst, path, ...) {
 #' )
 Population2Exposures <-
   function (df, x, P, breaks_out, scaler = 1, strata = NA) {
-    
+
     require(dplyr)
     require(tidyr)
     require(purrr)
-    
+
     x = enquo(x); P = enquo(P)
-    
+
     # for each stratum in the data return
     #   - interpolation function
     #   - interpolated population sizes
@@ -444,5 +377,5 @@ Population2Exposures <-
       ungroup() %>%
       select(-data, -interpolation_function) %>%
       unnest(c(x1, x2, Px, Ex))
-    
+
   }

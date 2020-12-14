@@ -1,6 +1,6 @@
 # Add date and exposure variables
 #
-# 2020-10-05
+# 2020-12-14
 #
 # Jonas Schöley
 
@@ -15,7 +15,7 @@ fig <- list()
 
 # Load data -------------------------------------------------------
 
-load('out/2020-11-10-hmd_yearly_pop_weekly_deaths.RData')
+load('out/2020-12-14-hmd_yearly_pop_weekly_deaths.RData')
 
 # Add time related variables --------------------------------------
 
@@ -54,10 +54,10 @@ dat$expanded_hmd_stmf_data <-
         
     # indicator variable for season
     season = case_when(
-      iso_week %in% glob$seasons$northern$Winter ~ 'Winter',
-      iso_week %in% glob$seasons$northern$Spring ~ 'Spring',
-      iso_week %in% glob$seasons$northern$Summer ~ 'Summer',
-      iso_week %in% glob$seasons$northern$Fall ~ 'Fall'
+      iso_week %in% glob$seasons$n$Winter ~ 'Winter',
+      iso_week %in% glob$seasons$n$Spring ~ 'Spring',
+      iso_week %in% glob$seasons$n$Summer ~ 'Summer',
+      iso_week %in% glob$seasons$n$Fall ~ 'Fall'
     ),
 
     # special weeks
